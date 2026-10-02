@@ -1,0 +1,122 @@
+import mysql.connector
+
+conexion=mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="1234",
+    database="inventario_tienda"
+)
+
+def create():
+    productName = input("name: ")
+    stock = input("ingrese una cantidad: ")
+    price = input("precio: ")
+    supplier = input("proveedor: ")
+    category = ("category:")
+
+    print("SELECCIONE UNA OPCION: ")
+    print("1. technology")
+    print("2. food")
+    print("3. clothing")
+
+    opcion =int(input("seleccione el tipo de categoria: "))
+
+    if opcion == 1:
+       category = "technology"
+    elif opcion == 2:
+        category = "food"
+    elif opcion == 3:
+        category = "clothing"
+
+    if conexion.is_connected():
+        cursor = conexion.cursor()
+    query = "INSERT INTO inventario(productName, stock, price, supplier, category) VALUES (%s,%s,%s,%s,%s)"
+    cursor.execute(query,(productName, stock, price, supplier, category))
+    conexion.commit()
+    print("se almacenaron correctamente")
+
+def delete():
+    id = int(input("Ingrese el ID del articulo que desea eliminar: "))
+    if conexion.is_connected():
+        cursor = conexion.cursor()
+        query = "DELETE FROM tickets WHERE idinventario = %s"
+        cursor.execute(query, (id,))
+        conexion.commit()
+        if cursor.rowcount > 0:
+                    print("LA ID SE BORRÓ CORRECTAMENTE")
+        else:
+                    print("NO SE ENCONTRÓ UNO CON ESE ID")
+         
+        if conexion.is_connected():
+              cursor = conexion.cursor()
+              query = "INSERT INTO inventario(productName, stock, price, supplier, categor) VALUES (%s,%s,%s,%s,%s)"
+              cursor.execute(query,id)
+        
+        
+
+def read():
+    id = int(input("INGRESE EL ID DEL ARTICULO: "))
+    if conexion.is_connected():
+       cursor = conexion.cursor()
+       query = "SELECT * FROM inventario WHERE id = %s"
+       cursor.execute(query, (id,))
+       consultar = cursor.fetchall()
+       print(consultar)
+
+def update():
+    id = int(input("INGRESE EL ID PARA ACTUALIZAR: "))
+
+    if conexion.is_connected():
+        cursor = conexion.cursor()
+        productName = input("productName: ")
+        stock = input("stock: ")
+        price = int(input("price: "))
+        supplier = input("supplier: ")
+        category = input("Tipo de categoria (technology/food/clothing): ")
+        query = """
+            UPDATE ticket
+            SET productName = %s,
+                stock = %s,
+                price = %s,
+                supplier = %s,
+                category = %s
+            WHERE id = %s
+        """
+        cursor.execute(
+            query,
+            (productName, stock, price, supplier, category, id)
+        )
+        conexion.commit()
+        print("el articulo se actualizo")
+
+def menu():
+    while True:
+        print("       STORE INVENTORY")
+        print("==============================") 
+        print("1. Add product")
+        print("2. View inventory")
+        print("3. Update product")
+        print("4. Delete product")
+        print("==============================")
+        try:
+            option = int(input("Select an option: "))
+            if option == 1:
+                create()
+            elif option == 2:
+                read()
+            elif option == 3:
+                update()
+            elif option == 4:
+                delete()
+                print("Program finished.")
+                break
+            else:
+                print("Please select one of the available options.")
+
+        except ValueError:
+            print("Error, please enter a valid number.")
+
+
+menu()
+
+
